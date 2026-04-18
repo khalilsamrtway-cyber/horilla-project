@@ -1142,15 +1142,24 @@ class LeaveRequest(HorillaModel):
 
     def is_approved(self):
         request = getattr(horilla_middlewares._thread_locals, "request", None)
+
         if request:
-            employee = Employee.objects.filter(employee_user_id=request.user).first()
-            condition_approval = LeaveRequestConditionApproval.objects.filter(
-                leave_request_id=self, manager_id=employee.id
+            employee = Employee.objects.filter(
+                employee_user_id=request.user
             ).first()
+
+            condition_approval = LeaveRequestConditionApproval.objects.filter(
+                leave_request_id=self,
+                manager_id=employee.id
+            ).first()
+
             if condition_approval:
                 return not condition_approval.is_approved
             else:
                 return True
+
+        return True
+            
 
     def delete(self, *args, **kwargs):
         if self.status == "requested":
